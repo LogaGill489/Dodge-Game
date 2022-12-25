@@ -86,5 +86,17 @@
   <ItemGroup>
     <None Include="Resources\image.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\345110__ideacraft__spaceship-woob-woob-01.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\170144__timgormly__8-bit-explosion2.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\242857__plasterbrain__coin-get.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\561310__badoink__dead-end.wav" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

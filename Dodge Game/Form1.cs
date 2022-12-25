@@ -11,6 +11,8 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.Media;
+using Dodge_Game.Properties;
 
 namespace Dodge_Game
 {
@@ -67,6 +69,10 @@ namespace Dodge_Game
 
         Stopwatch player1Timer = new Stopwatch();
         Stopwatch player2Timer = new Stopwatch();
+
+        SoundPlayer explosion = new SoundPlayer(Resources.explosionSound);
+        SoundPlayer coins = new SoundPlayer(Resources.coinNoise);
+        SoundPlayer endGame = new SoundPlayer(Resources.gameOverNoise);
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
@@ -251,6 +257,8 @@ namespace Dodge_Game
                 //check if balls have player1 collision
                 if (balls[i].IntersectsWith(player1))
                 {
+                    explosion.Play();
+
                     player1.Y = 320;
                     player1.X = 200;
 
@@ -263,6 +271,8 @@ namespace Dodge_Game
                 //check if balls have player2 collision
                 if (balls[i].IntersectsWith(player2))
                 {
+                    explosion.Play();
+
                     player2.Y = 320;
                     player2.X = 370;
 
@@ -346,6 +356,8 @@ namespace Dodge_Game
 
                 player1Score++;
                 p1ScoreLabel.Text = $"{player1Score}";
+
+                coins.Play();
             }
 
             if (player2.Y <= 0)
@@ -355,6 +367,8 @@ namespace Dodge_Game
 
                 player2Score++;
                 p2ScoreLabel.Text = $"{player2Score}";
+
+                coins.Play();
             }
 
             //timer
@@ -408,6 +422,8 @@ namespace Dodge_Game
 
                 player2.X = 370;
                 player2.Y = 320;
+
+                endGame.Play();
             }
 
             Refresh();
