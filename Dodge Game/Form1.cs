@@ -30,44 +30,73 @@ namespace Dodge_Game
         List <int> ballSpeeds = new List<int>();
 
         List <string> shapes = new List<string>();
+        List<string> direction = new List<string>();
 
-        Rectangle player = new Rectangle(20, 177, 20, 20);
+        Rectangle player1 = new Rectangle(200, 320, 20, 20);
+        Rectangle player2 = new Rectangle(370, 320, 20, 20);
 
         Brush whiteBrush = new SolidBrush(Color.White);
         Brush grayBrush = new SolidBrush(Color.Gray);
-        Brush orangeBrush = new SolidBrush(Color.Orange);
 
         Pen redPen = new Pen(Color.OrangeRed, 3);
         Pen bluePen = new Pen(Color.Aquamarine, 3);
+        Pen orangePen = new Pen(Color.Orange, 3);
+        Pen bigOrangePen = new Pen(Color.Orange, 7);
+
+        Image flames = Properties.Resources.flamesImage;
 
         bool wDown = false;
         bool sDown = false;
-        bool aDown = false;
-        bool dDown = false;
+        bool upDown = false;
+        bool downDown = false;
 
-        int playerSpeed = 7;
+        bool p1Flames = false;
+        bool p2Flames = false;
+
+        int playerSpeed = 4;
+
+        int player1Score;
+        int player2Score;
 
         int randValue;
+        int x;
 
         string difficulty = "Easy";
 
-        Stopwatch gameTime = new Stopwatch();
+        int clock = 1800;
+
+        Stopwatch player1Timer = new Stopwatch();
+        Stopwatch player2Timer = new Stopwatch();
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
         {
             switch (e.KeyCode)
             {
                 case Keys.W:
-                    wDown = true;
+                    if (player1Timer.IsRunning == false)
+                    {
+                        wDown = true;
+                        p1Flames = true;
+                    }
                     break;
                 case Keys.S:
-                    sDown = true;
+                    if (player1Timer.IsRunning == false)
+                    {
+                        sDown = true;
+                    }
                     break;
-                case Keys.A:
-                    aDown = true;
+                case Keys.Up:
+                    if (player2Timer.IsRunning == false)
+                    {
+                        upDown = true;
+                        p2Flames = true;
+                    }
                     break;
-                case Keys.D:
-                    dDown = true;
+                case Keys.Down:
+                    if (player2Timer.IsRunning == false)
+                    {
+                        downDown = true;
+                    }
                     break;
                 case Keys.E:
                     difficulty = "Easy";
@@ -81,13 +110,12 @@ namespace Dodge_Game
                     startGame();
                     difficulty = "Hard";
                     break;
-
                 case Keys.Escape:
                     if (gameTimer.Enabled == false)
                     {
                         Application.Exit();
                     }
-                        break;
+                    break;
             }
         }
         private void Form1_KeyUp(object sender, KeyEventArgs e)
@@ -96,21 +124,61 @@ namespace Dodge_Game
             {
                 case Keys.W:
                     wDown = false;
+                    p1Flames = false;
                     break;
                 case Keys.S:
                     sDown = false;
                     break;
-                case Keys.A:
-                    aDown = false;
+                case Keys.Up:
+                    upDown = false;
+                    p2Flames = false;
                     break;
-                case Keys.D:
-                    dDown = false;
+                case Keys.Down:
+                    downDown = false;
                     break;
             }
         }
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
-            e.Graphics.FillRectangle(orangeBrush, player);
+            //draws players if they are not in limbo from hitting object
+            if (player1Timer.IsRunning == false)
+            {
+                e.Graphics.DrawLine(bigOrangePen, player1.X + 8, player1.Y, player1.X + 20, player1.Y + 20);
+                e.Graphics.DrawLine(bigOrangePen, player1.X + 11, player1.Y, player1.X, player1.Y + 20);
+
+                if (p1Flames == true)
+                {
+                    e.Graphics.DrawImage(flames, player1.X, player1.Y + player1.Height, 20, 20);
+                }
+
+               // player1Image.Y = player1.Y + 72;
+            }
+            if (player2Timer.IsRunning == false)
+            {
+                e.Graphics.DrawLine(bigOrangePen, player2.X + 8, player2.Y, player2.X + 20, player2.Y + 20);
+                e.Graphics.DrawLine(bigOrangePen, player2.X + 11, player2.Y, player2.X, player2.Y + 20);
+
+                if (p2Flames == true)
+                {
+                    e.Graphics.DrawImage(flames, player2.X, player2.Y + player2.Height, 20, 20);
+                }
+            }
+
+            //draws players if they are invisible on end of game
+            if (player1Timer.IsRunning && clock <= 2)
+            {
+                e.Graphics.DrawLine(bigOrangePen, player1.X + 8, player1.Y, player1.X + 20, player1.Y + 20);
+                e.Graphics.DrawLine(bigOrangePen, player1.X + 11, player1.Y, player1.X, player1.Y + 20);
+                p1Flames = false;
+            }
+            if (player2Timer.IsRunning && clock <= 2)
+            {
+                e.Graphics.DrawLine(bigOrangePen, player2.X + 8, player2.Y, player2.X + 20, player2.Y + 20);
+                e.Graphics.DrawLine(bigOrangePen, player2.X + 11, player2.Y, player2.X, player2.Y + 20);
+                p2Flames = false;
+            }
+
+            e.Graphics.DrawLine(orangePen, this.Width / 2, 0, this.Width / 2, this.Height);
 
             if (gameTimer.Enabled == false)
             {
@@ -138,68 +206,105 @@ namespace Dodge_Game
         }
         private void gameTimer_Tick(object sender, EventArgs e)
         {
-            if (wDown == true && player.Y > 2)
+            if (wDown == true && player1.Y > 0)
             {
-                player.Y -= playerSpeed;
+                player1.Y -= playerSpeed;
             }
-            if (sDown == true && player.Y < this.Height - 23)
+            if (sDown == true && player1.Y < this.Height - 25)
             {
-                player.Y += playerSpeed;
+                player1.Y += playerSpeed;
             }
-            if (aDown == true && player.X > 2)
+            if (upDown == true && player2.Y > 0)
             {
-                player.X -= playerSpeed;
+                player2.Y -= playerSpeed;
             }
-            if (dDown == true && player.X < this.Width - 23)
+            if (downDown == true && player2.Y < this.Height - 25)
             {
-                player.X += playerSpeed;
+                player2.Y += playerSpeed;
             }
 
             //move ball objects
             for (int i = 0; i < balls.Count(); i++)
             {
-                int y = balls[i].Y + ballSpeeds[i];
-                balls[i] = new Rectangle(balls[i].X, y, ballWidthSizes[i], ballLengthSizes[i]);
+                if (direction[i] == "right")
+                {
+                    x = balls[i].X + ballSpeeds[i];
+                    balls[i] = new Rectangle(x, balls[i].Y, ballWidthSizes[i], ballLengthSizes[i]);
+                }
+                else if (direction[i] == "left")
+                {
+                    x = balls[i].X - ballSpeeds[i];
+                    balls[i] = new Rectangle(x, balls[i].Y, ballWidthSizes[i], ballLengthSizes[i]);
+                }
 
-                //remove balls at bottom of screen
-                if (balls[i].Y >= this.Height)
+                //remove balls at side of screen
+                if (balls[i].X >= this.Width)
                 {
                     balls.RemoveAt(i);
                     ballWidthSizes.RemoveAt(i);
                     ballLengthSizes.RemoveAt(i);
                     ballSpeeds.RemoveAt(i);
                     shapes.RemoveAt(i);
+                    direction.RemoveAt(i);
                 }
 
-                //check if balls have player collision
-                if (balls[i].IntersectsWith(player))
+                //check if balls have player1 collision
+                if (balls[i].IntersectsWith(player1))
                 {
-                    player.Y = 177;
-                    player.X = 20;
+                    player1.Y = 320;
+                    player1.X = 200;
+
+                    player1Timer.Start();
+
+                    wDown = false;
+                    sDown = false;
+                }
+
+                //check if balls have player2 collision
+                if (balls[i].IntersectsWith(player2))
+                {
+                    player2.Y = 320;
+                    player2.X = 370;
+
+                    player2Timer.Start();
+
+                    upDown = false;
+                    downDown = false;
+                }
+
+                if (player1Timer.ElapsedMilliseconds >= 1000)
+                {
+                    player1Timer.Stop();
+                    player1Timer.Reset();
+                }
+
+                if (player2Timer.ElapsedMilliseconds >= 1000)
+                {
+                    player2Timer.Stop();
+                    player2Timer.Reset();
                 }
             }
 
             //generate a random value
             if (difficulty == "Easy")
             {
-                randValue = randGen.Next(1, 151);
+                randValue = randGen.Next(1, 251);
             }
             else if (difficulty == "Medium")
             {
-                randValue = randGen.Next(1, 91);
+                randValue = randGen.Next(1, 171);
             }
             else if (difficulty == "Hard")
             {
-                randValue = randGen.Next(1, 71);
+                randValue = randGen.Next(1, 111);
             }
 
             //generate new ball if it is time
             if (randValue < 40)
             {
-                balls.Add(new Rectangle(randGen.Next(40, this.Width - 60), 0, 0, 0));
                 ballWidthSizes.Add(randGen.Next(7, 20));
-                ballLengthSizes.Add(randGen.Next(7, 20));
-                ballSpeeds.Add(randGen.Next(6, 12));
+                ballLengthSizes.Add(randGen.Next(3, 10));
+                ballSpeeds.Add(randGen.Next(3, 7));
 
                 randValue = randGen.Next(1, 20);
 
@@ -211,9 +316,56 @@ namespace Dodge_Game
                 {
                     shapes.Add("ellipse");
                 }
+
+                randValue = randGen.Next(1, 3);
+
+                if (randValue == 1)
+                {
+                    direction.Add("right");
+                }
+                else
+                {
+                    direction.Add("left");
+                }
+
+                if (direction.Last() == "right")
+                {
+                    balls.Add(new Rectangle(0, randGen.Next(40, this.Height - 60), 0, 0));
+                }
+                else
+                {
+                    balls.Add(new Rectangle(this.Width, randGen.Next(40, this.Height - 60), 0, 0));
+                }
             }
 
-            if (player.X >= this.Width - player.Width)
+            //check for player collision with the roof
+            if (player1.Y <= 0)
+            {
+                player1.X = 200;
+                player1.Y = 350;
+
+                player1Score++;
+                p1ScoreLabel.Text = $"{player1Score}";
+            }
+
+            if (player2.Y <= 0)
+            {
+                player2.X = 370;
+                player2.Y = 350;
+
+                player2Score++;
+                p2ScoreLabel.Text = $"{player2Score}";
+            }
+
+            //timer
+            if (clock % 30 == 0)
+            {
+                timeLabel.Text = $"Time Left: {clock / 30} Seconds";
+            }
+            clock--;
+
+            //end game
+            if (clock <= 0)
             {
                 gameTimer.Enabled = false;
 
@@ -222,6 +374,7 @@ namespace Dodge_Game
                 ballWidthSizes.Clear();
                 ballLengthSizes.Clear();
                 shapes.Clear();
+                direction.Clear();
 
                 easyLabel.Visible = true;
                 mediumLabel.Visible = true;
@@ -231,40 +384,68 @@ namespace Dodge_Game
                 winLabel.Visible = true;
                 escapeLabel.Visible = true;
 
-                player.X = 20;
-                player.Y = 177;
+                p1ScoreLabel.Visible = false;
+                p2ScoreLabel.Visible = false;
+                timeLabel.Visible = false;
 
-                gameTime.Stop();
-                long time = gameTime.ElapsedMilliseconds;
-                winLabel.Text = $"You took {gameTime.Elapsed.ToString(@"s\.fff")} Seconds to Win on {difficulty} Mode!";
-                gameTime.Reset();
+                timeLabel.Text = "";
 
-                this.Focus();
+                if (player1Score > player2Score)
+                {
+                    winLabel.Text = $"Player 1 Wins With a Final Score of {player1Score} Points to {player2Score}!";
+                }
+                else if (player1Score < player2Score)
+                {
+                    winLabel.Text = $"Player 2 Wins With a Final Score of {player2Score} Points to {player1Score}!";
+                }
+                else
+                {
+                    winLabel.Text = $"The Game Was a Draw With a Final Score of {player1Score} Points Each!";
+                }
+
+                player1.X = 200;
+                player1.Y = 320;
+
+                player2.X = 370;
+                player2.Y = 320;
             }
 
             Refresh();
         }
         public void startGame()
         {
+            //checks if the game is running, and wont let the keys do anything if so
             if (gameTimer.Enabled == false)
             {
+                //starts game
                 gameTimer.Enabled = true;
 
+                //removes labels
                 easyLabel.Visible = false;
                 mediumLabel.Visible = false;
+                hardLabel.Visible = false;
                 hardLabel.Visible = false;
 
                 topLabel.Visible = false;
                 winLabel.Visible = false;
                 escapeLabel.Visible = false;
 
+                //resets button labels to their set position after first runthrough
                 easyLabel.Location = new Point(easyLabel.Location.X, 180);
                 mediumLabel.Location = new Point(mediumLabel.Location.X, 214);
 
                 hardLabel.Location = new Point(hardLabel.Location.X, 180);
                 escapeLabel.Location = new Point(escapeLabel.Location.X, 210);
 
-                gameTime.Start();
+                p1ScoreLabel.Visible = true;
+                p1ScoreLabel.Text = "0";
+
+                p2ScoreLabel.Visible = true;
+                p2ScoreLabel.Text = "0";
+
+                timeLabel.Visible = true;
+
+                clock = 1800;
             }
         }
     }
